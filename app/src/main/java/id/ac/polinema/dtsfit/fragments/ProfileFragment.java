@@ -10,6 +10,7 @@ import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,15 +19,15 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import id.ac.polinema.dtsfit.Application;
+import id.ac.polinema.dtsfit.Profile;
 import id.ac.polinema.dtsfit.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ProfileFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
@@ -38,11 +39,11 @@ public class ProfileFragment extends Fragment {
     private AppCompatRadioButton femaleRadio;
     private TextInputEditText heightText;
     private TextInputEditText weightText;
-    private TextInputEditText dobText;
+    private TextInputEditText ageText;
     private AppCompatSpinner activitiesSpinner;
     private AppCompatButton saveButton;
 
-    private OnFragmentInteractionListener mListener;
+    private Profile profile;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -64,6 +65,7 @@ public class ProfileFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        profile = Application.provideProfile();
     }
 
     @Override
@@ -81,27 +83,48 @@ public class ProfileFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private void initComponents(View view) {
+    private void initComponents(final View view) {
         nameText = view.findViewById(R.id.input_name);
         genderGroup = view.findViewById(R.id.group_gender);
-//        maleRadio = view.findViewById(R.id.radio_male);
-//        femaleRadio = view.findViewById(R.id.radio_female);
+        maleRadio = view.findViewById(R.id.radio_male);
+        femaleRadio = view.findViewById(R.id.radio_female);
         heightText = view.findViewById(R.id.input_height);
         weightText = view.findViewById(R.id.input_weight);
-        dobText = view.findViewById(R.id.input_dob);
+        ageText = view.findViewById(R.id.input_age);
         activitiesSpinner = view.findViewById(R.id.spinner_activities);
         saveButton = view.findViewById(R.id.button_save);
+
+        nameText.setText(profile.getName());
+        if (profile.getGender() != null) {
+            RadioButton genderRadio = ("Male".equals(profile.getGender())) ? maleRadio : femaleRadio;
+            genderRadio.setChecked(true);
+        }
+        heightText.setText(String.valueOf(profile.getHeight()));
+        weightText.setText(String.valueOf(profile.getWeight()));
+        ageText.setText(String.valueOf(profile.getAge()));
+        activitiesSpinner.setSelection(profile.getActivity());
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
+                String name = nameText.getText().toString();
+                Log.i("ProfileFragment", String.valueOf(genderGroup.getCheckedRadioButtonId()));
                 RadioButton selectedRadioButton = view.findViewById(genderGroup.getCheckedRadioButtonId());
                 String gender = selectedRadioButton.getText().toString();
-                float height = Float.parseFloat(heightText.getText().toString());
-                float weight = Float.parseFloat(weightText.getText().toString());
-                int age = 31;
+                int height = Integer.parseInt(heightText.getText().toString());
+                int weight = Integer.parseInt(weightText.getText().toString());
+                int age = Integer.parseInt(ageText.getText().toString());
                 int activity = activitiesSpinner.getSelectedItemPosition();
 
                 float bmr = calculateBmr(gender, height, weight, age, activity);
+                profile.setName(name);
+                profile.setGender(gender);
+                profile.setHeight(height);
+                profile.setWeight(weight);
+                profile.setAge(age);
+                profile.setActivity(activity);
+                profile.setBmr(bmr);
+
+                Snackbar.make(v, "Save Profile Successfull", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
@@ -123,35 +146,5 @@ public class ProfileFragment extends Fragment {
         }
 
         return result;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
     }
 }

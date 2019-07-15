@@ -12,8 +12,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.util.List;
+import java.util.Locale;
 
 import id.ac.polinema.dtsfit.adapters.CaloriesAdapter;
 import id.ac.polinema.dtsfit.fragments.CaloryFragment;
@@ -27,10 +29,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements
-		ProfileFragment.OnFragmentInteractionListener,
 		CaloryFragment.OnFragmentInteractionListener,
 		SaveCaloryFragment.OnFragmentInteractionListener {
 
+	private Profile profile;
 	private CaloryService caloryService;
 
 	@Override
@@ -40,8 +42,13 @@ public class MainActivity extends AppCompatActivity implements
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
+		Profile profile = Application.provideProfile();
         caloryService = ServiceGenerator.createService(CaloryService.class);
-		changeFragment(ProfileFragment.newInstance());
+
+        Fragment startFragment = (profile.getBmr() != 0)
+				? CaloryFragment.newInstance()
+				: ProfileFragment.newInstance();
+		changeFragment(startFragment);
 	}
 
 	@Override
@@ -60,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements
 
 		//noinspection SimplifiableIfStatement
 		switch (id) {
+			case R.id.action_profile:
+				changeFragment(ProfileFragment.newInstance());
+				return true;
 			case R.id.action_calories:
 			    changeFragment(CaloryFragment.newInstance());
 				return true;
@@ -84,13 +94,18 @@ public class MainActivity extends AppCompatActivity implements
 	}
 
 	@Override
-	public void onCaloryFragmentCreated(final View view, final CaloriesAdapter adapter) {
+	public void onCaloryFragmentCreated(final View view, final CaloriesAdapter adapter, final TextView caloryText) {
 		Call<List<Calory>> caloriesCall = caloryService.getCalories();
 		caloriesCall.enqueue(new Callback<List<Calory>>() {
 			@Override
 			public void onResponse(Call<List<Calory>> call, Response<List<Calory>> response) {
 				List<Calory> calories = response.body();
 				adapter.setCalories(calories);
+                int total = 0;
+				for (Calory calory : calories) {
+                    total += calory.getCalory();
+				}
+				caloryText.setText(String.format(Locale.ENGLISH,"Your calory %d cal", total));
 			}
 
 			@Override

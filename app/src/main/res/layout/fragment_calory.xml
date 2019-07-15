@@ -10,31 +10,31 @@
     >
 
     <TextView
-        android:id="@+id/tv_total"
+        android:id="@+id/tv_calory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:textAlignment="center"
         android:paddingTop="?attr/actionBarSize"
-        android:text="Your Total Calory Today"
+        android:text="Your calory 0 cal"
         android:textSize="32dp"
         />
 
     <TextView
-        android:id="@+id/tv_calory"
+        android:id="@+id/tv_bmr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tv_total"
+        android:layout_below="@id/tv_calory"
         android:textAlignment="center"
         android:textSize="24sp"
-        tools:hint="100 Calory"
+        tools:hint="from 100 calory"
         />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_calories"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tv_calory"
+        android:layout_below="@id/tv_bmr"
         >
 
     </androidx.recyclerview.widget.RecyclerView>

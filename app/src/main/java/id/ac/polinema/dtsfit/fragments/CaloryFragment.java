@@ -4,18 +4,26 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
+import java.util.Locale;
 
+import id.ac.polinema.dtsfit.Application;
+import id.ac.polinema.dtsfit.Profile;
 import id.ac.polinema.dtsfit.R;
 import id.ac.polinema.dtsfit.adapters.CaloriesAdapter;
 import id.ac.polinema.dtsfit.generator.ServiceGenerator;
@@ -35,11 +43,14 @@ import retrofit2.Response;
  */
 public class CaloryFragment extends Fragment implements CaloriesAdapter.OnCaloryClickedListener {
 
+    private TextView caloryText;
+    private TextView bmrText;
     private RecyclerView caloriesView;
     private FloatingActionButton addButton;
 
-    private CaloryService caloryService;
     private CaloriesAdapter caloriesAdapter;
+
+    private Profile profile;
 
     private OnFragmentInteractionListener mListener;
 
@@ -62,6 +73,8 @@ public class CaloryFragment extends Fragment implements CaloriesAdapter.OnCalory
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        profile = Application.provideProfile();
     }
 
     @Override
@@ -75,8 +88,13 @@ public class CaloryFragment extends Fragment implements CaloriesAdapter.OnCalory
 
     private void initComponents(View view) {
         Context context = getActivity();
+
+        caloryText = view.findViewById(R.id.tv_calory);
+        bmrText = view.findViewById(R.id.tv_bmr);
         caloriesView = view.findViewById(R.id.rv_calories);
         addButton = view.findViewById(R.id.fab_add);
+
+        bmrText.setText(String.format(Locale.ENGLISH, "Bmr %.2f cal", profile.getBmr()));
 
         // setup recyclerview
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
@@ -84,10 +102,8 @@ public class CaloryFragment extends Fragment implements CaloriesAdapter.OnCalory
         caloriesView.setLayoutManager(layoutManager);
         caloriesView.setAdapter(caloriesAdapter);
 
-        caloryService = ServiceGenerator.createService(CaloryService.class);
-
         if (mListener != null) {
-            mListener.onCaloryFragmentCreated(getView(), caloriesAdapter);
+            mListener.onCaloryFragmentCreated(getView(), caloriesAdapter, caloryText);
             addButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -95,6 +111,12 @@ public class CaloryFragment extends Fragment implements CaloriesAdapter.OnCalory
                 }
             });
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_calory, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -132,7 +154,7 @@ public class CaloryFragment extends Fragment implements CaloriesAdapter.OnCalory
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onCaloryFragmentCreated(final View view, final CaloriesAdapter adapter);
+        void onCaloryFragmentCreated(final View view, final CaloriesAdapter adapter, final TextView caloryText);
         void onAddCaloryButtonClicked();
         void onCaloryClicked(Calory calory);
     }

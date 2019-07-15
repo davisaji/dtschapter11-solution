@@ -41,13 +41,13 @@
                 android:id="@+id/radio_male"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Male"
+                android:text="Male"
                 />
             <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/radio_female"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Female"
+                android:text="Female"
                 />
         </RadioGroup>
 
@@ -87,10 +87,11 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/input_dob"
+            android:id="@+id/input_age"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Date of Birth"/>
+            android:inputType="numberSigned"
+            android:hint="Age"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Activities Label -->
